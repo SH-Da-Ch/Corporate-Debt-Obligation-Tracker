@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Management Tool</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; padding: 40px 20px; color: #333; }
+        .container { max-width: 500px; margin: auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #1a73e8; margin-bottom: 25px; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #5f6368; text-transform: uppercase; }
+        input { width: 100%; padding: 12px; border: 1px solid #dfe1e5; border-radius: 8px; box-sizing: border-box; font-size: 16px; transition: border 0.3s; }
+        input:focus { border: 2px solid #1a73e8; outline: none; }
+        .results-box { margin-top: 25px; background: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #eef0f2; }
+        .res-row { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 16px; }
+        .total-row { margin-top: 15px; padding-top: 15px; border-top: 2px solid #1a73e8; font-weight: bold; font-size: 1.1em; color: #1a73e8; }
+        .val { font-family: 'Courier New', Courier, monospace; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Loan Calculator</h2>
+    
+    <div class="input-group">
+        <label>Principal Amount</label>
+        <input type="number" id="principal" oninput="update()">
+    </div>
+    
+    <div style="display: flex; gap: 15px;">
+        <div class="input-group" style="flex: 1;">
+            <label>Annual ROI (%)</label>
+            <input type="number" step="any" id="roi" oninput="update()">
+        </div>
+        <div class="input-group" style="flex: 1;">
+            <label>Total Tenure (Mos)</label>
+            <input type="number" id="tenure" oninput="update()">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>EMIs Paid to Date</label>
+        <input type="number" id="paid" oninput="update()">
+    </div>
+
+    <div class="results-box">
+        <div class="res-row">
+            <span>Monthly EMI:</span>
+            <span id="emiDisp" class="val">₹0</span>
+        </div>
+        <div class="res-row">
+            <span>Current Principal Bal:</span>
+            <span id="balDisp" class="val">₹0</span>
+        </div>
+        <div class="res-row">
+            <span>Interest Remaining:</span>
+            <span id="intRemDisp" class="val">₹0</span>
+        </div>
+        <div class="res-row total-row">
+            <span>TOTAL OUTSTANDING:</span>
+            <span id="totalOutDisp" class="val">₹0</span>
+        </div>
+    </div>
+</div>
+
+<script>
+    function update() {
+        const P = parseFloat(document.getElementById('principal').value);
+        const annualROI = parseFloat(document.getElementById('roi').value);
+        const n = parseInt(document.getElementById('tenure').value);
+        const k = parseInt(document.getElementById('paid').value) || 0;
+
+        if (!P || !annualROI || !n) return;
+
+        const r = (annualROI / 100) / 12;
+        
+        // EMI
+        const emi = P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+        
+        // Principal Balance
+        const balance = P * (Math.pow(1 + r, n) - Math.pow(1 + r, k)) / (Math.pow(1 + r, n) - 1);
+        
+        // Total Outstanding (Remaining EMIs)
+        const remainingMonths = n - k;
+        const totalOutstanding = emi * Math.max(0, remainingMonths);
+        const interestRemaining = totalOutstanding - balance;
+
+        const fmt = (v) => Math.round(Math.max(0, v)).toLocaleString('en-IN');
+
+        document.getElementById('emiDisp').innerText = "₹" + fmt(emi);
+        document.getElementById('balDisp').innerText = "₹" + fmt(balance);
+        document.getElementById('intRemDisp').innerText = "₹" + fmt(interestRemaining);
+        document.getElementById('totalOutDisp').innerText = "₹" + fmt(totalOutstanding);
+    }
+</script>
+
+</body>
+</html>
